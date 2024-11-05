@@ -32,7 +32,7 @@
 
             // Function to fetch products
             function fetchProducts(page) {
-                fetch(`https://dummyjson.com/products?limit=${productsPerPage}&skip=${(page - 1) * productsPerPage}`) // Replace with your actual API URL
+                fetch(`https://dummyjson.com/products?limit=${productsPerPage}&skip=${(page - 1) * productsPerPage}`)
                     .then(response => {
                         if (!response.ok) {
                             throw new Error("Network response was not ok " + response.statusText);
@@ -80,7 +80,31 @@
                 pagination.innerHTML = ""; // Clear existing pagination
 
                 const totalPages = Math.ceil(totalProducts / productsPerPage);
-                for (let i = 1; i <= totalPages; i++) {
+                const maxPagesToShow = 10;
+
+                // Previous button
+                let prevItem = document.createElement("li");
+                prevItem.className = 'page-item ' + (currentPage === 1 ? 'disabled' : '');
+                prevItem.innerHTML = `<a class="page-link" href="#" aria-label="Previous">&laquo;</a>`;
+                prevItem.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    if (currentPage > 1) {
+                        currentPage--; // Decrease current page
+                        fetchProducts(currentPage); // Fetch products for the new page
+                    }
+                });
+                pagination.appendChild(prevItem);
+
+                // Calculate start and end page numbers
+                let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+                let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+
+                if (endPage - startPage < maxPagesToShow - 1) {
+                    startPage = Math.max(1, endPage - maxPagesToShow + 1);
+                }
+
+                // Page numbers
+                for (let i = startPage; i <= endPage; i++) {
                     let pageItem = document.createElement("li");
                     pageItem.className = `page-item ${currentPage === i ? 'active' : ''}`;
                     pageItem.innerHTML = `<a class="page-link" href="#">${i}</a>`;
@@ -91,6 +115,19 @@
                     });
                     pagination.appendChild(pageItem);
                 }
+
+                // Next button
+                let nextItem = document.createElement("li");
+                nextItem.className = 'page-item ' + (currentPage === totalPages ? 'disabled' : '');
+                nextItem.innerHTML = `<a class="page-link" href="#" aria-label="Next">&raquo;</a>`;
+                nextItem.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    if (currentPage < totalPages) {
+                        currentPage++; // Increase current page
+                        fetchProducts(currentPage); // Fetch products for the new page
+                    }
+                });
+                pagination.appendChild(nextItem);
             }
         });
     </script>
