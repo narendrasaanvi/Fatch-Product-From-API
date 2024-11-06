@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Search Suggestions</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Custom styling for suggestions */
+        #suggestions {
+            position: absolute;
+            z-index: 1000;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            border-radius: 0.25rem;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+
+    <div class="container mt-5">
+        <div class="position-relative">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search for products..."
+                autocomplete="off">
+            <div id="suggestions" class="list-group shadow-sm"></div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Function to fetch and display suggestions
+        function fetchAndDisplaySuggestions(query) {
+            const suggestionsBox = document.getElementById('suggestions');
+
+            // Fetch suggestions from the API
+            fetch(`https://dummyjson.com/products/search?q=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    const products = data.products;
+                    suggestionsBox.innerHTML = ''; // Clear previous suggestions
+
+                    if (products && products.length > 0) {
+                        suggestionsBox.style.display = 'block';
+                        products.forEach(product => {
+                            const suggestionItem = document.createElement('a');
+                            suggestionItem.classList.add('list-group-item', 'list-group-item-action');
+                            suggestionItem.textContent = product.title;
+                            suggestionItem.href = '#';
+                            suggestionItem.addEventListener('click', (e) => {
+                                e.preventDefault(); // Prevent default link behavior
+                                document.getElementById('searchInput').value = product.title;
+                                suggestionsBox.style.display = 'none';
+                            });
+                            suggestionsBox.appendChild(suggestionItem);
+                        });
+                    } else {
+                        suggestionsBox.style.display = 'none';
+                    }
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        // Event listener for input on the search box
+        document.getElementById('searchInput').addEventListener('input', function () {
+            const query = this.value.trim();
+            if (query.length > 1) {
+                fetchAndDisplaySuggestions(query);
+            } else {
+                document.getElementById('suggestions').style.display = 'none';
+            }
+        });
+    </script>
+
+</body>
+
+</html>
