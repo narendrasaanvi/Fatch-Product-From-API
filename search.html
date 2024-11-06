@@ -52,11 +52,10 @@
                             const suggestionItem = document.createElement('a');
                             suggestionItem.classList.add('list-group-item', 'list-group-item-action');
                             suggestionItem.textContent = product.title;
-                            suggestionItem.href = '#';
-                            suggestionItem.addEventListener('click', (e) => {
-                                e.preventDefault(); // Prevent default link behavior
-                                document.getElementById('searchInput').value = product.title;
-                                suggestionsBox.style.display = 'none';
+                            suggestionItem.href = `product/${product.title.toLowerCase().replace(/\s+/g, '-')}`;
+                            suggestionItem.addEventListener('click', () => {
+                                // Navigate to the URL directly
+                                window.location.href = suggestionItem.href;
                             });
                             suggestionsBox.appendChild(suggestionItem);
                         });
